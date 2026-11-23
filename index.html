@@ -1,1 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CV Maker</title>
+<style>
+:root{--accent:#4f46e5;--font:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--ui:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{margin:0;background:radial-gradient(1200px 500px at 50% -100px,#dfe3f5,transparent),#eef0f6;font-family:var(--ui);color:#161a23}
 
+/* App toolbar */
+.toolbar{position:sticky;top:12px;z-index:10;display:flex;flex-wrap:wrap;gap:8px;align-items:center;max-width:1000px;margin:12px auto 0;padding:10px 14px;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border:1px solid rgba(20,25,40,.08);border-radius:16px;box-shadow:0 8px 30px rgba(20,25,60,.1)}
+.brand{font-weight:800;letter-spacing:-.02em;margin-right:6px}
+.brand i{font-style:normal;color:var(--accent)}
+.toolbar button,.toolbar select{font:inherit;font-size:13.5px;font-weight:550;padding:8px 13px;border:1px solid #e1e4ec;border-radius:10px;background:#fff;color:#222;cursor:pointer;transition:.15s}
+.toolbar button:hover{border-color:var(--accent);color:var(--accent)}
+.toolbar button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.toolbar button.primary:hover{filter:brightness(1.1);color:#fff}
+.toolbar input[type=color]{width:30px;height:30px;padding:0;border:0;border-radius:50%;background:none;cursor:pointer}
+.sw{width:22px;height:22px;padding:0!important;border-radius:50%!important;border:2px solid #fff!important;box-shadow:0 0 0 1px #d5d9e3}
+.group{display:flex;align-items:center;gap:6px}
+.sep{flex:1}
+.hint{font-size:13px;color:#6b7080;padding:14px 16px 0;text-align:center}
+
+/* Sheet */
+.sheet{width:210mm;max-width:100%;min-height:297mm;margin:16px auto 60px;background:#fff;border-radius:10px;box-shadow:0 20px 60px rgba(20,25,60,.18);overflow:hidden;font-family:var(--font);font-size:10pt;line-height:1.5;color:#1c212b}
+#cv{display:grid;grid-template-columns:68mm 1fr;min-height:297mm}
+#cv:focus{outline:none}
+#cv p{margin:0}
+#cv ul{margin:3px 0 0;padding-left:17px}
+
+.side{background:linear-gradient(165deg,var(--accent),color-mix(in srgb,var(--accent) 62%,#000));color:#fff;padding:14mm 8mm;display:flex;flex-direction:column;gap:20px}
+.photo-wrap{position:relative;width:44mm;height:44mm;margin:0 auto 4px}
+.photo{width:100%;height:100%;border-radius:50%;border:3px solid rgba(255,255,255,.9);background:rgba(255,255,255,.14);overflow:hidden;cursor:pointer;display:grid;place-items:center;font-size:9pt;font-weight:600;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.photo img{width:100%;height:100%;object-fit:cover;display:block}
+.side h2{font-size:8pt;letter-spacing:.18em;text-transform:uppercase;margin:0 0 8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.3);font-weight:700;opacity:.9}
+.side p{margin-bottom:4px;font-size:9.5pt;word-break:break-word}
+.badges{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.badge{position:relative;background:#fff;color:#222;border-radius:12px;padding:7px 6px 5px;text-align:center;font-size:7.5pt;line-height:1.2;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.badge img{width:100%;aspect-ratio:1;object-fit:contain;display:block;-webkit-user-drag:none;user-select:none}
+.badge .cap{display:block;margin-top:3px;font-weight:600}
+
+.main{padding:14mm 12mm 14mm 11mm}
+.main h1{margin:0;font-size:31pt;line-height:1.05;letter-spacing:-.03em}
+.title{color:var(--accent);font-weight:650;font-size:13pt;margin:5px 0 16px}
+.main section{margin-top:18px}
+.main h2{display:flex;align-items:center;gap:10px;margin:0 0 11px;font-size:9.5pt;letter-spacing:.16em;text-transform:uppercase;color:#111}
+.main h2::after{content:"";flex:1;height:1px;background:#e0e3ea}
+.item{position:relative;margin:0 0 13px;padding-left:14px;border-left:2px solid #e6e9f0}
+.item::before{content:"";position:absolute;left:-6px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid #fff}
+.row{display:flex;justify-content:space-between;gap:12px}
+.row b{font-weight:700}
+.row span{color:#6b7080;font-size:9pt;white-space:nowrap;padding-top:1px}
+
+/* Edit controls (never printed/exported) */
+.del{position:absolute;left:-30px;top:2px;width:20px;height:20px;line-height:17px;padding:0;border:0;border-radius:50%;background:#e11d48;color:#fff;cursor:pointer;font-size:14px;opacity:0;transition:.15s}
+.item:hover>.del,.badge:hover>.del,.photo-wrap:hover>.del{opacity:1}
+.badge .del,.photo-wrap .del{left:auto;right:-6px;top:-6px}
+.add{font:inherit;font-family:var(--ui);font-size:11.5px;font-weight:600;padding:4px 12px;border:1.5px dashed var(--accent);border-radius:99px;background:none;color:var(--accent);cursor:pointer}
+.add.light{border-color:rgba(255,255,255,.7);color:#fff}
+.add:hover{background:rgba(127,127,127,.12)}
+
+@media (max-width:760px){#cv{grid-template-columns:1fr}.sheet{border-radius:0}}
+@media print{
+ @page{size:A4;margin:0}
+ body{background:#fff}
+ .no-print,.toolbar,.hint{display:none!important}
+ .sheet{margin:0;box-shadow:none;border-radius:0;width:210mm}
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar no-print">
+  <span class="brand">CV<i>.</i>maker</span>
+  <button data-act="section">+ Section</button>
+  <div class="group" id="swatches"></div>
+  <input type="color" id="accent" value="#4f46e5" title="Custom colour">
+  <select id="font" title="Font">
+    <option value="system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">Modern</option>
+    <option value="ui-rounded,'SF Pro Rounded','Nunito','Segoe UI',system-ui,sans-serif">Rounded</option>
+    <option value="Georgia,'Times New Roman',serif">Classic</option>
+    <option value="ui-monospace,'SF Mono',Menlo,Consolas,monospace">Mono</option>
+  </select>
+  <span class="sep"></span>
+  <button data-act="load">Load</button>
+  <button data-act="json">Save JSON</button>
+  <button data-act="html">Download HTML</button>
+  <button data-act="reset">Reset</button>
+  <button data-act="print" class="primary">Export PDF</button>
+  <input type="file" id="file" accept=".json" hidden>
+  <input type="file" id="imgpick" accept="image/*" hidden>
+</div>
+<div class="hint no-print">Click any text to edit. Click the circle to add your photo. Use "+ Badge" for badges and certificates. Everything autosaves in your browser.</div>
+
+<div class="sheet"><div id="cv" contenteditable="true" spellcheck="false"></div></div>
+
+<script>
+const KEY='cv-maker-v2', $=s=>document.querySelector(s), cv=$('#cv');
+const X='<button class="del no-print" contenteditable="false" title="Remove">×</button>';
+const PH='<span class="no-print">+ Add photo</span>';
+const T={
+ job:()=>`<div class="item">${X}<div class="row"><b>Job title, Company</b><span>2021 – Present</span></div><ul><li>What you achieved or were responsible for</li></ul></div>`,
+ edu:()=>`<div class="item">${X}<div class="row"><b>Degree, School</b><span>2017 – 2021</span></div><p>Details, grade, thesis</p></div>`,
+ text:()=>`<div class="item">${X}<p>New entry</p></div>`
+};
+const add=(t,label)=>`<button class="add no-print" contenteditable="false" data-add="${t}">+ ${label}</button>`;
+const DEFAULT=`
+<aside class="side">
+  <div class="photo-wrap"><div class="photo" contenteditable="false" data-photo>${PH}</div>${X}</div>
+  <section><h2>Contact</h2><p>email@example.com</p><p>+00 000 000 000</p><p>City, Country</p><p>website.com</p></section>
+  <section><h2>Skills</h2><ul><li>Skill one</li><li>Skill two</li><li>Skill three</li></ul></section>
+  <section><h2>Badges</h2><div class="badges"></div><button class="add light no-print" contenteditable="false" data-badge>+ Badge</button></section>
+</aside>
+<div class="main">
+  <h1>Your Name</h1>
+  <div class="title">Professional Title</div>
+  <section><h2>Profile</h2><p>A short summary of who you are, what you do best, and what you are looking for.</p></section>
+  <section><h2>Experience</h2><div class="list">${T.job()}</div>${add('job','Job')}</section>
+  <section><h2>Education</h2><div class="list">${T.edu()}</div>${add('edu','Education')}</section>
+</div>`;
+
+let warned=false;
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify({html:cv.innerHTML,accent:$('#accent').value,font:$('#font').value}))}
+  catch(e){if(!warned){warned=true;alert('Browser storage is full (large images?). Use "Save JSON" to keep your work.')}}
+}
+function style(){
+  document.documentElement.style.setProperty('--accent',$('#accent').value);
+  document.documentElement.style.setProperty('--font',$('#font').value);
+}
+function apply(d){
+  cv.innerHTML=d.html||DEFAULT;
+  $('#accent').value=d.accent||'#4f46e5';
+  if(d.font&&[...$('#font').options].some(o=>o.value===d.font))$('#font').value=d.font;else $('#font').selectedIndex=0;
+  style();
+}
+function dl(name,text,type){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function staticHTML(){
+  const c=cv.cloneNode(true);
+  c.querySelectorAll('.no-print').forEach(e=>e.remove());
+  c.querySelectorAll('.photo-wrap').forEach(w=>{if(!w.querySelector('img'))w.remove()});
+  c.removeAttribute('contenteditable');
+  const css=document.querySelector('style').textContent;
+  const root=`:root{--accent:${$('#accent').value};--font:${$('#font').value}}`;
+  return `<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>CV</title><style>${css}\n${root}</style></head><body><div class="sheet">${c.outerHTML}</div></body></html>`;
+}
+
+/* Images: resized in the browser so storage stays small */
+function readImg(file,max,square,mime,cb){
+  const fr=new FileReader();
+  fr.onload=()=>{const im=new Image();im.onload=()=>{
+    let sx=0,sy=0,sw=im.width,sh=im.height;
+    if(square){const s=Math.min(sw,sh);sx=(sw-s)/2;sy=(sh-s)/2;sw=sh=s}
+    const k=Math.min(1,max/Math.max(sw,sh)),c=document.createElement('canvas');
+    c.width=Math.round(sw*k);c.height=Math.round(sh*k);
+    const x=c.getContext('2d');
+    if(mime==='image/jpeg'){x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height)}
+    x.drawImage(im,sx,sy,sw,sh,0,0,c.width,c.height);
+    cb(c.toDataURL(mime,.88));
+  };im.src=fr.result};
+  fr.readAsDataURL(file);
+}
+const picker=$('#imgpick');
+function pick(multiple,cb){picker.multiple=multiple;picker.onchange=()=>{[...picker.files].forEach(cb);picker.value=''};picker.click()}
+
+cv.addEventListener('click',e=>{
+  const del=e.target.closest('.del');
+  if(del){
+    if(del.closest('.photo-wrap')){$('.photo').innerHTML=PH}else{del.parentElement.remove()}
+    save();return;
+  }
+  if(e.target.closest('[data-photo]')){
+    pick(false,f=>readImg(f,400,true,'image/jpeg',u=>{$('.photo').innerHTML=`<img src="${u}" alt="Photo">`;save()}));return;
+  }
+  if(e.target.closest('[data-badge]')){
+    pick(true,f=>readImg(f,240,false,'image/png',u=>{
+      $('.badges').insertAdjacentHTML('beforeend',`<div class="badge">${X}<img src="${u}" alt="Badge"><span class="cap">Badge name</span></div>`);save();
+    }));return;
+  }
+  const a=e.target.closest('[data-add]');
+  if(a){a.parentElement.querySelector('.list').insertAdjacentHTML('beforeend',T[a.dataset.add]());save()}
+});
+
+let timer;
+cv.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(save,300)});
+$('#accent').oninput=()=>{style();save()};
+$('#font').onchange=()=>{style();save()};
+['#4f46e5','#0f766e','#be123c','#1d4ed8','#c2410c','#111827'].forEach(c=>{
+  const b=document.createElement('button');b.className='sw';b.style.background=c;b.title=c;
+  b.onclick=()=>{$('#accent').value=c;style();save()};$('#swatches').append(b);
+});
+
+document.querySelector('.toolbar').addEventListener('click',e=>{
+  const act=e.target.dataset.act;if(!act)return;
+  if(act==='print')window.print();
+  if(act==='html')dl('cv.html',staticHTML(),'text/html');
+  if(act==='json')dl('cv.json',localStorage.getItem(KEY)||JSON.stringify({html:cv.innerHTML,accent:$('#accent').value,font:$('#font').value}),'application/json');
+  if(act==='load')$('#file').click();
+  if(act==='reset'&&confirm('Discard everything and start over?')){localStorage.removeItem(KEY);apply({})}
+  if(act==='section'){
+    $('.main').insertAdjacentHTML('beforeend',`<section><h2>New Section</h2><div class="list">${T.text()}</div>${add('text','Entry')}</section>`);save();
+  }
+});
+$('#file').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{apply(JSON.parse(r.result));save()}catch(err){alert('That file is not a valid CV JSON.')}};
+  r.readAsText(f);e.target.value='';
+};
+
+let saved={};try{saved=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){}
+apply(saved);
+</script>
+</body>
+</html>
